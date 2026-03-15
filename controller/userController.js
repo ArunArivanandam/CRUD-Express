@@ -1,14 +1,18 @@
 const fs = require("node:fs/promises");
 const path = require("path");
+const { getDB } = require("../db");
 
 const filePath = path.join(process.cwd(), "data", "data.json");
-console.log(filePath);
 
 exports.getAllUsers = async (req, res) => {
   try {
     const userData = await fs.readFile(filePath, { encoding: "utf-8" });
     const data = JSON.parse(userData);
-    res.json(data);
+    const db = getDB();
+    const users = db.collection("users");
+
+    const data_db = await users.find().toArray();
+    res.json(data_db);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -21,8 +25,12 @@ exports.createUser = async (req, res) => {
     console.log(req.params.id);
     const user = req.body;
     data.push(user);
+    const db = getDB();
+    const users = db.collection("users");
+
+    const result = await users.insertOne(req.body);
     await fs.writeFile(filePath, JSON.stringify(data));
-    res.send("User added");
+    res.json(result);
   } catch (error) {
     console.log("User Creation Error:", error);
   }
