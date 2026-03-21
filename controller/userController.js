@@ -55,16 +55,24 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const updatedUser = req.body;
-    const userData = await fs.readFile(filePath, { encoding: "utf-8" });
-    const data = JSON.parse(userData);
-    const index = data.findIndex((user) => user.id === Number(req.params.id));
-    if (index === -1) {
-      return res.status(404).send("User not found");
-    }
-    data[index] = updatedUser;
-    await fs.writeFile(filePath, JSON.stringify(data));
-    res.send(updatedUser);
+    // const updatedUser = req.body;
+    // const userData = await fs.readFile(filePath, { encoding: "utf-8" });
+    // const data = JSON.parse(userData);
+    // const index = data.findIndex((user) => user.id === Number(req.params.id));
+    // if (index === -1) {
+    //   return res.status(404).send("User not found");
+    // }
+    // data[index] = updatedUser;
+    // await fs.writeFile(filePath, JSON.stringify(data));
+    const db = getDB();
+    const users = db.collection("users");
+    const user = await users.updateOne(
+      { _id: new ObjectId(req.params.id) },
+      {
+        $set: req.body,
+      },
+    );
+    res.send(user);
   } catch (error) {
     console.log("User Update Error", error);
   }
