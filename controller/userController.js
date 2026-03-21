@@ -80,12 +80,22 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const userData = await fs.readFile(filePath, { encoding: "utf-8" });
-    const data = JSON.parse(userData);
-    const updatedUsers = data.filter((user) => user.id !== id);
-    await fs.writeFile(filePath, JSON.stringify(updatedUsers));
-    res.json({ message: "User deleted successfully" });
+    // const id = Number(req.params.id);
+    // const userData = await fs.readFile(filePath, { encoding: "utf-8" });
+    // const data = JSON.parse(userData);
+    // const updatedUsers = data.filter((user) => user.id !== id);
+    // await fs.writeFile(filePath, JSON.stringify(updatedUsers));
+    const db = getDB();
+    const users = db.collection("users");
+    const user = await users.deleteOne({ _id: new ObjectId(req.params.id) });
+    console.log(user);
+    if (user.deletedCount === 1) {
+      res.json({ message: `User deleted successfully` });
+    } else {
+      res.json({
+        message: "No documents matched the query. Deleted 0 documents.",
+      });
+    }
   } catch (error) {
     console.log("User Deletion Error", error);
   }
