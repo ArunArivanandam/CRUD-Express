@@ -1,18 +1,20 @@
 const fs = require("node:fs/promises");
 const path = require("path");
 const { getDB } = require("../db");
+const { ObjectId } = require("mongodb");
 
 const filePath = path.join(process.cwd(), "data", "data.json");
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const userData = await fs.readFile(filePath, { encoding: "utf-8" });
-    const data = JSON.parse(userData);
+    // const userData = await fs.readFile(filePath, { encoding: "utf-8" });
+    // const data = JSON.parse(userData);
     const db = getDB();
     const users = db.collection("users");
 
     const data_db = await users.find().toArray();
     res.json(data_db);
+    // console.log(data);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -20,16 +22,15 @@ exports.getAllUsers = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
-    const userData = await fs.readFile(filePath, { encoding: "utf-8" });
-    const data = JSON.parse(userData);
-    console.log(req.params.id);
+    // const userData = await fs.readFile(filePath, { encoding: "utf-8" });
+    // const data = JSON.parse(userData);
     const user = req.body;
-    data.push(user);
+    // data.push(user);
     const db = getDB();
     const users = db.collection("users");
 
-    const result = await users.insertOne(req.body);
-    await fs.writeFile(filePath, JSON.stringify(data));
+    const result = await users.insertOne(user);
+    // await fs.writeFile(filePath, JSON.stringify(data));
     res.json(result);
   } catch (error) {
     console.log("User Creation Error:", error);
@@ -38,11 +39,14 @@ exports.createUser = async (req, res) => {
 
 exports.getUser = async (req, res) => {
   try {
-    const userData = await fs.readFile(filePath, { encoding: "utf-8" });
-    const data = JSON.parse(userData);
-    const user = data.filter((user) => {
-      return user.id === Number(req.params.id);
-    });
+    // const userData = await fs.readFile(filePath, { encoding: "utf-8" });
+    // const data = JSON.parse(userData);
+    // const user = data.filter((user) => {
+    //   return user.id === Number(req.params.id);
+    // });
+    const db = getDB();
+    const users = db.collection("users");
+    const user = await users.findOne({ _id: new ObjectId(req.params.id) });
     res.json(user);
   } catch (error) {
     console.log("Error:", error);
